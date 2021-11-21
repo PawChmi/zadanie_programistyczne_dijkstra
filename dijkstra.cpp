@@ -73,10 +73,6 @@ node connectionToNode(std::string origin, connection C)
    
     if(origin == C.origin) temp.neighbours[C.destination] = C.weight;
     else temp.neighbours[C.origin] = C.weight;
-    
-    
-    
-    temp.value = -1;
     return temp;
 }
 path compareNeighbours( std::map< std::string, node > n, std::string start, std::string end, path previous, std::map<std::string, double> d){
@@ -87,7 +83,6 @@ path compareNeighbours( std::map< std::string, node > n, std::string start, std:
         return previous;
     }
 
-    n[start].active = false;
     for(auto Vert : n[start].neighbours){
         
         if(d.find(Vert.first)!=d.end()){             

@@ -146,16 +146,24 @@ int main(int argc, char **argv)
         if(verbose)std::cout<<"plik wyjsciowy: " << output << std::endl;
         for(auto W : toCheck){
             std::cout << "Wierzchołek startowy: "<< W <<std::endl;
+            outputS << "Wierzchołek startowy: "<< W <<std::endl;
             if(nodes.find(W)==nodes.end()){
                 std::cout << "Brak wierzchołka "<< W <<" w grafie"<<std::endl;
+                outputS << "Brak wierzchołka "<< W <<" w grafie"<<std::endl;
             }else{
+                
                 for (const auto Pair : nodes){
                     if(Pair.first!=W){
                         path shrtPath = findShortestPath(nodes, W, Pair.first);
-                        
-                        for(auto x : shrtPath.points){
-                            std::cout << "->" << x;
-                        }std::cout <<":"<< shrtPath.lenght<<std::endl;
+                        std::cout << shrtPath.points[0];
+                        outputS << shrtPath.points[0];
+                        for(int i = 1; i< shrtPath.points.size(); i++){
+                            
+                            std::cout << " -> " << shrtPath.points[i];
+                            outputS << " -> " << shrtPath.points[i];
+                        }
+                        std::cout <<" : "<< shrtPath.lenght<<std::endl;
+                        outputS <<" : "<< shrtPath.lenght<<std::endl;
                     }
                 }
             }

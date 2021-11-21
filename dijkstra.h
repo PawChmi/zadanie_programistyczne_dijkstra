@@ -5,14 +5,7 @@
 #include <string>
 #include <map>
 
-/**
-funkcja zwraca wektor taki że:
-element 0 = węzeł poczatkowy
-element 1 = 
-element 0 = węzeł poczatkowy
 
-
-*/
 struct connection
 {
     std::string origin = "";
@@ -25,14 +18,14 @@ struct node
 {
     std::string label = "";
     std::map<std::string, double> neighbours = {};
-    double value = 0.0;
-    bool active = true;
 };
+
 struct path
 {
     double lenght = 0;
     std::vector<std::string> points;
 };
+
 connection parseLineGraph(std::string line);
 
 std::vector<std::string> parseLineVertex(std::string line);
