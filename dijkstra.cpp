@@ -3,30 +3,34 @@
 #include <vector>
 #include <iostream>
 
+
 connection parseLineGraph(std::string line)
 {
     int i = 0;
-    
     connection newConnection;
-    while(i<line.size()){
-        if(line[i] != ' ')
+    while(i<line.size())
+    {
+        if(line[i] != ' ') //ignorowanie spacji
         {
-            int j = 1;
-            while(line[i+j] != ' '&& j<line.size()){
+            int j = 1; //długość podciągu
+            while(line[i+j] != ' '&& j<line.size())
+            {
                 j++;
-            }
-            if (line.substr(i, j)=="-")
+            }//wydłużaj aż nie będzie spacją
+            
+            if (line.substr(i, j)=="-") // - oznacza krawędź nieskierowaną
             {
                 newConnection.directed = false;
-            }else if (line.substr(i, j)=="->")
+            }else if (line.substr(i, j)=="->")//oznacza krawędź skierowaną 
             {
-                newConnection.directed = true;
-            }else if(line.substr(i, j)!=":"){
+                newConnection.directed = true; 
+            }else if(line.substr(i, j)!=":")
+            { //jeżeli ciąg znaków nie jest ":" to jest nazwą jednego z wierzchołków lub wagą krawędzi
                 if(newConnection.origin == "") newConnection.origin = line.substr(i, j);
                 else if(newConnection.destination == "") newConnection.destination = line.substr(i,j);
                 else if(newConnection.weight == 0) newConnection.weight = std::stod(line.substr(i, j));
             }
-            i += j;
+            i += j; //zacznij od końca podciągu
         }else{ 
             i++;
         }
@@ -34,19 +38,23 @@ connection parseLineGraph(std::string line)
     return newConnection;
 }
 
+
 std::vector<std::string> parseLineVertex(std::string line)
 {
     int i = 0;
     std::vector<std::string> newVector;
-    while(i<line.size()){
-        if(line[i] != ' ')
+    while(i<line.size())
+    {
+        if(line[i] != ' ') //ignorowanie spacji
         {
-            int j = 1;
-            while(line[i+j] != ' '&& j<line.size()){
+            int j = 1;//długość podciągu
+            while(line[i+j] != ' '&& j<line.size())
+            {
                 j++;
-            }
-            newVector.push_back(line.substr(i, j));
-            i += j;
+            }//wydłużaj aż nie będzie spacją
+            
+            newVector.push_back(line.substr(i, j)); //dodaj podciągo do listy wierzchołków do sprawdzenia
+            i += j; //przeskocz do końca podciągu
         }else{ 
             i++;
         }
@@ -55,7 +63,8 @@ std::vector<std::string> parseLineVertex(std::string line)
 }
 
 
-void helpMessage(){
+void helpMessage()
+{
     std::cout << "Ten program znajduje najkrótszą drogę miedzy wierzchołkami wykorzystując algorytm Dijksry" << std::endl;
     std::cout << "Program przyjmuje następujące argumenty:"<<std::endl;
     std::cout << "-g \'nazwa pliku\' plik wejściowy zawierający graf."<<std::endl;
@@ -66,45 +75,43 @@ void helpMessage(){
 }
 
 
-node connectionToNode(std::string origin, connection C)
+path compareNeighbours( std::map<std::string, std::map<std::string, double>> n, std::string start, std::string end, path previous, std::map<std::string, double> d)
 {
-    node temp;
-    temp.label = origin;
-   
-    if(origin == C.origin) temp.neighbours[C.destination] = C.weight;
-    else temp.neighbours[C.origin] = C.weight;
-    return temp;
-}
-path compareNeighbours( std::map< std::string, node > n, std::string start, std::string end, path previous, std::map<std::string, double> d){
     
-    if(start == end){
+    if(start == end) //warunek powrotu z rekurencji
+    {
         previous.points.push_back(start);
         previous.lenght = d[end];
         return previous;
     }
 
-    for(auto Vert : n[start].neighbours){
-        
-        if(d.find(Vert.first)!=d.end()){             
-            if(d[start] + Vert.second < d[Vert.first] || d[Vert.first]<0){
-                d[Vert.first] = d[start] + Vert.second;
+    for(auto node : n[start])//dla sąsiednich wierzchołków wierzchołka start
+    {
+        if(d.find(node.first)!=d.end()) //jeżeli wierzchołek jest w liście odległości (nie był sprawdzany)
+        {
+            if(d[start] + node.second < d[node.first] || d[node.first]<0) //jeżeli odległość do wierzchołka jest większa niż obecna odległość + odległość do tego wierzchołka (ewentulanie wierzchołek oddalony o nieskończoność)
+            {
+                d[node.first] = d[start] + node.second; //ustaw odległość do wierzchołka na sumę obecnej odlegóści i odległości do tego wierzchołka
             }
         }
     }
-    previous.points.push_back(start);
-    d.erase(start);
-
-
-    previous = compareNeighbours(n, closest(d), end, previous, d);
-    return previous;
+    previous.points.push_back(start); //dodaj obecny wierzchołek do ścieżki
+    d.erase(start); //usuń obecny wierzchołek z listy odległości  wierzchołków
+    previous = compareNeighbours(n, closest(d), end, previous, d); //wywołanie rekurencyjne
+    
+    return previous; //zwróć wartość funkcji rekurencyjnej
 }
 
-std::string closest(std::map<std::string, double> d){
+std::string closest(std::map<std::string, double> d)
+{
     double shortest=0;
     std::string output;
-    for(auto item : d){
-        if(item.second > 0){
-            if(item.second<shortest ||shortest == 0){
+    for(auto item : d)
+    {
+        if(item.second > 0)
+        {
+            if(item.second<shortest ||shortest == 0)
+            {
                 shortest = item.second;
                 output = item.first;
             }
@@ -113,14 +120,15 @@ std::string closest(std::map<std::string, double> d){
     return output;
 }
 
-path findShortestPath ( std::map< std::string, node > n, std::string start, std::string end )
+path findShortestPath (std::map<std::string, std::map<std::string, double>> n, std::string start, std::string end )
 {
     path currentPath;
     std::map<std::string, double> distances;
-    for(auto x : n){
-        distances[x.first] = -1;
+    for(auto x : n)
+    {
+        distances[x.first] = -1; //początkowe odległości do wszystkich punktów ustalone na -1, traktowane jak nieskończoność przy porównywaniu 
     }
-    distances[start] = 0;
+    distances[start] = 0; //początkowa odległość ustalona na zero
     path temp;
     currentPath = compareNeighbours(n, start, end, temp, distances);
     return currentPath;

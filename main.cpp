@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 {
     std::vector<connection> connections;
     std::vector<std::string>toCheck;
-    std::map<std::string, node> nodes;
+    std::map<std::string, std::map<std::string, double>> nodes;
     std::string graph, input, output;
     bool verbose = false;
     for (int i = 1; i < argc-1; i++)
@@ -80,7 +80,8 @@ int main(int argc, char **argv)
             return 0;
         }
     }
-    if(output == ""){
+    if(output == "")
+    {
         helpMessage();
         std::cerr << "Nie podano pliku wyjściowego"<<std::endl;   
         return 1;
@@ -92,7 +93,8 @@ int main(int argc, char **argv)
     {
         if(verbose)std::cout<<"graf: " << graph << std::endl;
         
-        while(std::getline(graphS, linia)){
+        while(std::getline(graphS, linia))
+        {
             if(linia.size()>1){
             connections.push_back(parseLineGraph(linia));
             }
@@ -110,7 +112,8 @@ int main(int argc, char **argv)
     if(inputS.is_open())
     {
         if(verbose)std::cout<<"wierzcholki: "  << input << std::endl;
-        if(std::getline(inputS, linia)){
+        if(std::getline(inputS, linia))
+        {
             toCheck = parseLineVertex(linia);
         } else { 
             std::cerr << "plik z wierzchołkami jest pusty"<<std::endl;
@@ -125,35 +128,31 @@ int main(int argc, char **argv)
 
 
 
-    for(connection w : connections){
-        if(nodes.find(w.origin)==nodes.end()){ //nie ma jeszcze takiego wierzchołka, musimy go dodać
-            nodes[w.origin] = connectionToNode(w.origin, w);
-        }else {//jest już taki wierzchołek, wystarczy dodać sąsiada
-            nodes[w.origin].neighbours[w.destination] = w.weight;
-        }
-        if(w.directed == 0){ // krawędź nieskierowana -> połączenie w drugą stronę też możliwe
-            if(nodes.find(w.destination)==nodes.end()){ //nie ma jeszcze takiego wierzchołka, musimy go dodać
-                nodes[w.destination] = connectionToNode(w.destination, w);
-            }else { //jest już taki wierzchołek, wystarczy dodać sąsiada
-                nodes[w.destination].neighbours[w.origin] = w.weight;
-            }
+    for(connection w : connections)
+    {
+        nodes[w.origin][w.destination] = w.weight;
+        if(w.directed == 0)
+        {
+            nodes[w.destination][w.origin] = w.weight;
         }
     }
-    
     std::ofstream outputS (output);
     if(outputS.is_open())
     {
         if(verbose)std::cout<<"plik wyjsciowy: " << output << std::endl;
-        for(auto W : toCheck){
+        for(auto W : toCheck)
+        {
             std::cout << "Wierzchołek startowy: "<< W <<std::endl;
             outputS << "Wierzchołek startowy: "<< W <<std::endl;
-            if(nodes.find(W)==nodes.end()){
+            if(nodes.find(W)==nodes.end())
+            {
                 std::cout << "Brak wierzchołka "<< W <<" w grafie"<<std::endl;
                 outputS << "Brak wierzchołka "<< W <<" w grafie"<<std::endl;
             }else{
                 
-                for (const auto Pair : nodes){
-                    if(Pair.first!=W){
+                for (const auto& Pair : nodes){
+                    if(Pair.first!=W)
+                    {
                         path shrtPath = findShortestPath(nodes, W, Pair.first);
                         std::cout << shrtPath.points[0];
                         outputS << shrtPath.points[0];
@@ -172,25 +171,28 @@ int main(int argc, char **argv)
     }
     
     
-    if(verbose){
+    if(verbose)
+    {
         std::cout <<"Wczytane dane:"<<std::endl;
-        for(connection w : connections){
+        for(connection w : connections)
+        {
             std::cout << "z: "<< w.origin<< std::endl;
             std::cout << "do: "<< w.destination << std::endl;
             std::cout << "waga: "<< w.weight<< std::endl;
             std::cout << "skierowana "<< w.directed << std::endl;
         }
-        for (const auto& [key, value] : nodes) {
-            std::cout << key << ":" <<std::endl;
-            std::cout <<"Nazwa: "<< value.label <<std::endl;
-            std::cout << "Wartość "<< value.value <<"\nSąsiednie:\n";
-            
-            for(const auto [wierzch, waga] : value.neighbours){
-                std::cout << "\twierzchołek: " << wierzch << "; waga: " << waga << std::endl;
+        for (const auto& P : nodes) 
+        {
+            std::cout <<"nazwa"<< P.first << ":" <<std::endl;
+
+            for(const auto&  Q : P.second)
+            {
+                std::cout << "\twierzchołek: " << Q.first << "; waga: " << Q.second << std::endl;
             }
         }
         std::cout <<"wierzchołki do sprawdzenia:"<<std::endl;
-        for(auto x : toCheck){
+        for(auto x : toCheck)
+        {
             std::cout << "\t"<< x << std::endl;
         }
     }
