@@ -1,4 +1,4 @@
-# zadanie_programistyczne_dijkstra
+# Zadanie programistyczne Dijkstra
 Program znajduje najkrótszą drogę miedzy wierzchołkami wykorzystując algorytm Dijksry
 Program przyjmuje następujące argumenty:
 ```-g 'nazwa pliku' plik wejściowy zawierający graf.
