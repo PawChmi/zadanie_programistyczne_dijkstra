@@ -33,9 +33,9 @@ vSt readTask ( std::string filename ) {
     std::ifstream inputStream ( filename );
     vSt out;
     if ( inputStream ) {
-        std::string wierzcholek;
-        while ( inputStream>>wierzcholek ) {
-            out.push_back ( wierzcholek );
+        std::string node;
+        while ( inputStream>>node ) {
+            out.push_back ( node );
         }
         inputStream.close();
         return out;
