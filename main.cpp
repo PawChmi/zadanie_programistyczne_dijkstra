@@ -31,9 +31,26 @@ int main ( int argc, char **argv ) {
         }
     }
     if ( not strcmp ( argv[argc-1],"-v" ) ) verbose = true; //verbose, wypisuj dodatkowe informacje
-
+    //wypisanie wprowadzonych danych jeżeli podano parametr verobse
+    if (verbose) {
+        std::cout << "plik wyjsciowy: " << output << std::endl;
+        std::cout << "wierzchołki: " << input << std::endl;
+        std::cout << "graf: " << graph << std::endl;
+        std::cout << "Dane wprowadzone do programu:" << std::endl;
+        for (const auto& node : nodes) {
+            std::cout << "nazwa " << node.first << ":" << std::endl;
+            for (const auto& neighbour : node.second) {
+                std::cout << "\t-> " << neighbour.first << ": " << neighbour.second << std::endl;
+            }
+        }
+        std::cout << "wierzchołki do sprawdzenia:" << std::endl;
+        for (auto x : toCheck) {
+            std::cout << x << " ";
+        }
+        std::cout << std::endl;
+    }
     //wczytywanie grafu
-    if ( verbose ) std::cout<<"graf: " << graph << std::endl;
+   
     setSt nodeList;
     std::ifstream graphStream ( graph );
     if ( graphStream ) {
@@ -56,29 +73,12 @@ int main ( int argc, char **argv ) {
     }
 
     //wczytywanie wierzchołków
-    if ( verbose ) std::cout<<"wierzchołki: "  << input << std::endl;
+    
     vSt toCheck = readTask ( input );
-
-    if ( verbose ) {
-        std::cout << "Dane wprowadzone do programu:"<<std::endl;
-        for ( const auto& node : nodes ) {
-            std::cout <<"nazwa "<< node.first << ":" <<std::endl;
-            for ( const auto&  neighbour : node.second ) {
-                std::cout << "\t-> " << neighbour.first << ": " << neighbour.second << std::endl;
-            }
-        }
-        std::cout <<"wierzchołki do sprawdzenia:"<<std::endl;
-        for ( auto x : toCheck ) {
-            std::cout << x<< " ";
-        }
-        std::cout << std::endl;
-    }
-
 
 
     std::ofstream outputStream ( output );
     if ( outputStream ) {
-        if ( verbose ) std::cout<<"plik wyjsciowy: " << output << std::endl;
         for ( auto startingNode : toCheck ) {//dla każdego z zadanych wierzchołków
             std::cout << "Wierzchołek startowy: "<< startingNode <<std::endl;
             outputStream << "Wierzchołek startowy: "<< startingNode <<std::endl;
