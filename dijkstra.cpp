@@ -5,34 +5,48 @@
 
 
 
+
 /**
  * Funkcja wypisuje wiadomość pomocy ma standardowe wyjście. Jeżeli parametry wejściowe są niepoprawne lub użyty zostanie argument "-h"
 */
 void helpMessage()
 {
-    std::cout << "Ten program znajduje najkrótszą drogę miedzy wierzchołkami wykorzystując algorytm Dijksry" << std::endl;
-    std::cout << "Program przyjmuje następujące argumenty:"<<std::endl;
-    std::cout << "-g \'nazwa pliku\' plik wejściowy zawierający graf."<<std::endl;
-    std::cout << "-w \'nazwa pliku\' plik wejściowy zawierający listę wierzchołków do zbadania."<<std::endl;
-    std::cout << "-o \'nazwa pliku\' plik wyjściowy."<<std::endl;
-    std::cout << "-v Verbose, tryb wypisywania dodatkowych informacji."<<std::endl;
-    std::cout << "-h wypisuje tą wiadomość pomocy."<<std::endl;
+        std::cout << "Ten program znajduje najkrótszą drogę miedzy wierzchołkami wykorzystując algorytm Dijksry" << std::endl;
+        std::cout << "Program przyjmuje następujące argumenty:"<<std::endl;
+        std::cout << "-g \'nazwa pliku\' plik wejściowy zawierający graf."<<std::endl;
+        std::cout << "-w \'nazwa pliku\' plik wejściowy zawierający listę wierzchołków do zbadania."<<std::endl;
+        std::cout << "-o \'nazwa pliku\' plik wyjściowy."<<std::endl;
+        std::cout << "-v Verbose, tryb wypisywania dodatkowych informacji."<<std::endl;
+        std::cout << "-h wypisuje tą wiadomość pomocy."<<std::endl;
 }
 
 
-/**
- * Funkcja zwraca wartość true jeżeli pierwsza z porównywanych ścieżek jest krótsza
- * @param p1 pierwsze połączenie 
- * @param p2 drugie połączenie 
-*/
-bool sortByDistance(const std::string &p1, const std::string &p2,  std::map<std::string, double> &m) {
-    return (m[p1]>m[p2]);
+
+std::string traceback ( mapStSt& m, std::string end, std::string start )
+{
+        if ( start == end )
+                return start;
+        else
+                return traceback ( m, m[end], start ) +" -> "+ end;
+
 }
 
-std::string traceback(std::map<std::string, std::string> &m, std::string start, std::string end){
-    if(start == end)
-        return end;
-    else
-        return traceback(m, m[start], end) +" -> "+ start;
-    
+vSt readTask ( std::string filename )
+{
+        std::ifstream inputStream ( filename );
+        vSt out;
+        if ( inputStream ) {
+                std::string wierzcholek;
+                while ( inputStream>>wierzcholek ) {
+                        out.push_back ( wierzcholek );
+                }
+                inputStream.close();
+                return out;
+        } else {
+                //zwraca błąd jeżeli nie podano pliku wejściowego z wierzchołkami
+                helpMessage();
+                std::cerr << "Nie podano pliku z wierzchołkami"<<std::endl;
+                return out;
+        }
+
 }
