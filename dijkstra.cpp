@@ -83,7 +83,7 @@ graph readGraph ( const std::string filename, setSt& list ) {
     return temp;
 }
 
-void prepareValues ( std::string &start, setSt &nL, mapStSt &p, mapStDb &d, vSt &r ) {
+void prepareValues ( std::string &start, setSt &nL, mapStDb &d, mapStSt &p, vSt &r ) {
 
     for ( auto node = nL.begin(); node != nL.end(); ++node ) {
         p[*node] = ""; //poprzednik jako niezdefiniowany
@@ -93,7 +93,7 @@ void prepareValues ( std::string &start, setSt &nL, mapStSt &p, mapStDb &d, vSt 
     d[start] = 0; // ustaw odległość początkowego na 0
 }
 
-void dijkstra(vSt &Q, setSt &S, mapStDb &d, mapStSt &p, graph &n){
+void dijkstra ( vSt &Q, setSt &S, mapStDb &d, mapStSt &p, graph &n ) {
     while ( Q.size() ) { //dopóki nie wszystkie wierzchołki odwiedzone
         //sortowanie wektora Q według odległości
         std::sort ( Q.begin(), Q.end(), [&d] ( std::string el1, std::string el2 ) {
