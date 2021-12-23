@@ -1,3 +1,4 @@
+/** @file */
 #ifndef dijkstra_h
 #define dijkstra_h
 #include <set>
@@ -17,6 +18,10 @@ typedef std::vector<std::string> vSt; //vector zmiennych String
 */
 void helpMessage();
 
+
+void printInput(std::string& g, std::string& i, std::string& o, graph& n, vSt& tC);
+
+
 /**
  * Funkcja zwraca ciąg znaków: kolejne punkty ścieżki od start do end połączone znakami  " -> "
  * Funkcja działa reukrencyjnie.
@@ -24,18 +29,24 @@ void helpMessage();
  * @param m mapa String : String w której klucz odnosi się do poprzedniego wierzchołka
  * @param end wierzchołek do którego szukamy ścieżki
  * @param  start wierzchoł z którego zaczynamy wyznaczać ścieżkę
-*/
+ */
 std::string traceback(mapStSt &m, std::string end, std::string start);
 
 /**
  * Funkcja zwraca wektor ciągów znaków, które określają dla jakich wierzchołków należy znaleźć najkrótsze ścieżki
  * @param filename nazwa pliku wejściowego
-*/
-vSt readTask(std::string filename);
+ */
+vSt readTask(const std::string filename);
 
 
-graph readGraph(std::string filename, setSt& list);
+graph readGraph(const std::string filename, setSt& list);
 
+
+
+void prepareValues(std::string &start, setSt &nL, mapStSt &p, mapStDb &d, vSt &r );
+
+
+void dijkstra(vSt &Q, setSt &S, mapStDb &d, mapStSt &p, graph &n);
 /**
  * Funkcja wypisuje do strumienia wyjściowego wyznaczoną najkrótszą ścieżkę 
  * @param d  mapa odległości od wierzchołka startowego
@@ -43,12 +54,13 @@ graph readGraph(std::string filename, setSt& list);
  * @param n  wierzchołek dla którego wypisujemy ścieżkę
  * @param startN wierzchołek początkowy
  * 
-*/
+ */
 void writeResults(mapStDb& d, mapStSt& p, std::string &n, std::string &startN, std::ofstream &S, bool V=false);
 
 
 /**
  * Funkcja wczytuje parametry wejściowe podane do programu
+ * Funkcja zwraca wartość bool jeżeli jakieś dane są brakujące
  * @param argc ilośc podanych agrumentów
  * @param argv tablica podanych argumentów
  * @param g  do niego zwróci nazwę pliku z grafem
@@ -56,6 +68,9 @@ void writeResults(mapStDb& d, mapStSt& p, std::string &n, std::string &startN, s
  * @param out do niego zwróci nazwę pliku wyjściowego
  * @param v  do niego zwróci czy funkcja ma być verobse
  *
-*/
+ */
 bool readParameters(int& argc, char** argv, std::string& g, std::string& inp, std::string& out, bool &v);
+
+
+
 #endif
