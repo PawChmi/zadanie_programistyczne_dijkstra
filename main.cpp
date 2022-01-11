@@ -10,11 +10,12 @@
 #include <iterator>
 #include "dijkstra.h"
 
-int main ( int argc, char **argv ) {
-    std::string graphName, input, output;
+int main ( int argc, char **argv )
+{
+    std::string graphName, taskName, outputName;
     //wczytanie podanych parametrów
     bool verbose = false;
-    if ( readParameters ( argc, argv, graphName, input, output, verbose ) ) {
+    if ( readParameters ( argc, argv, graphName, taskName, outputName, verbose ) ) {
         helpMessage();
         return 0;
     }
@@ -22,15 +23,15 @@ int main ( int argc, char **argv ) {
     setSt nodeList;
     graph nodes = readGraph ( graphName, nodeList );
     //wczytywanie wierzchołków
-    vSt toCheck = readTask ( input );
-    if ( verbose ) printInput(graphName, input, output, nodes, toCheck);
-    std::ofstream outputStream ( output );
+    vSt toCheck = readTask ( taskName );
+    if ( verbose ) printInput ( graphName, taskName, outputName, nodes, toCheck );
+    std::ofstream outputStream ( outputName );
     if ( outputStream ) {
         for ( auto startingNode : toCheck ) {//dla każdego z zadanych wierzchołków
-            if(verbose)std::cout << "Wierzchołek startowy: "<< startingNode <<std::endl;
+            if ( verbose ) std::cout << "Wierzchołek startowy: "<< startingNode <<std::endl;
             outputStream << "Wierzchołek startowy: "<< startingNode <<std::endl;
             if ( nodes.find ( startingNode ) ==nodes.end() ) { //sprawdzamy czy taki wierzchołek w ogóle istnieje
-                if(verbose)std::cout << "Brak wierzchołka "<< startingNode <<" w grafie"<<std::endl;
+                if ( verbose ) std::cout << "Brak wierzchołka "<< startingNode <<" w grafie"<<std::endl;
                 outputStream << "Brak wierzchołka "<< startingNode <<" w grafie"<<std::endl;
             } else {
                 mapStSt previous;       //mapa poprzedników
@@ -39,9 +40,9 @@ int main ( int argc, char **argv ) {
                 vSt remaining = {};  // wektor wierzchołków nieodwiedzonych
                 //wektor zastosowany z uwagi na łatwiejsze sortowanie
                 //przygotowanie map odległości i poprzedników
-                prepareValues(startingNode, nodeList, previous, distance, remaining);
+                prepareValues ( startingNode, nodeList,distance, previous,  remaining );
                 //wyszukanie najkrótszych ścieżek
-                dijkstra(remaining, checked, distance, previous, nodes);
+                dijkstra ( remaining, checked, distance, previous, nodes );
                 //wypisanie wyników dla każdego wierzchołka w grafie
                 for ( auto node:checked ) {
                     writeResults ( distance, previous, node, startingNode, outputStream, verbose );

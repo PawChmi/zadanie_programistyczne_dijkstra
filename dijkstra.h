@@ -90,8 +90,8 @@ void writeResults(mapStDb& d, mapStSt& p, std::string &n, std::string &startN, s
 
 /**
  * Funkcja wczytuje parametry wejściowe podane do programu
- * Funkcja zwraca wartość bool jeżeli jakieś dane są brakujące
- * @param argc ilośc podanych agrumentów
+ * Funkcja zwraca wartość true jeżeli jakieś dane są brakujące
+ * @param argc ilość podanych agrumentów
  * @param argv tablica podanych argumentów
  * @param g  do niego zwróci nazwę pliku z grafem
  * @param inp  do niego zwróci nazwę pliku z wierzchołkami
