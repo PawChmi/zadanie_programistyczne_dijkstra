@@ -44,7 +44,7 @@ int main ( int argc, char **argv )
                 vSt remaining = {};  // wektor wierzchołków nieodwiedzonych
                 //wektor zastosowany z uwagi na łatwiejsze sortowanie
                 //przygotowanie map odległości i poprzedników
-                prepareValues ( startingNode, nodeList,distance, previous,  remaining );
+                prepareValues ( startingNode, nodeList ,distance, previous,  remaining );
                 //wyszukanie najkrótszych ścieżek
                 dijkstra ( remaining, checked, distance, previous, nodes );
                 //wypisanie wyników dla każdego wierzchołka w grafie

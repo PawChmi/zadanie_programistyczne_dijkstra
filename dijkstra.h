@@ -74,7 +74,7 @@ graph readGraph(const std::string filename, setSt& list);
  * @param[out] r wektor do którego mają być wpisane wierzchołki do sprawdzenia
  * 
  */
-void prepareValues(std::string &start, setSt &nL, mapStDb &d, mapStSt &p, vSt &r );
+void prepareValues(std::string& start, setSt& nL, mapStDb& d, mapStSt& p, vSt& r);
 
 /**
  * Funkcja wykonuje algorytm dijkstry i wpisuje do podanych kontenerów odległości do wierzchołków, oraz listę ich poprzedników

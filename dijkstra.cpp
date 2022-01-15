@@ -65,22 +65,22 @@ graph readGraph ( const std::string filename, setSt& list ) {
 
     std::ifstream graphStream ( filename );
     if ( graphStream ) {
-        std::string poczatek, polaczenie, koniec, dwukropek;
-        double waga;
+        std::string start, connection, end, separator;
+        double weight;
         int lines = 1;
-        while ( graphStream >> poczatek >> polaczenie >> koniec >> dwukropek >> waga ) {
-            if(dwukropek == ":") //prosta weryfikacja poprawności wprowadzonych danych
+        while ( graphStream >> start >> connection >> end >> separator >> weight ) {
+            if(separator == ":") //prosta weryfikacja poprawności wprowadzonych danych
                 lines++;
             else {
                 std::cerr << "Błąd wczytywania danych w połączeniu " << lines<<std::endl;
                 graph error;
                 return error;
             }
-            list.insert ( poczatek ); //dodajemy do zbioru wierzchołek początkowy i końcowy
-            list.insert ( koniec ); //ponieważ może być wierzchołek zdefiniwowany tylko jako ywkońcowy
-            temp[poczatek][koniec] = waga;
-            if ( polaczenie == "-" ) { // jeżeli krawędź nieskierowana
-                temp[koniec][poczatek] = waga;//to połączenie w drugą stronę też istnieje
+            list.insert ( start ); //dodajemy do zbioru wierzchołek początkowy i końcowy
+            list.insert ( end ); //ponieważ może być wierzchołek zdefiniwowany tylko jako ywkońcowy
+            temp[start][end] = weight;
+            if ( connection == "-" ) { // jeżeli krawędź nieskierowana
+                temp[end][start] = weight;//to połączenie w drugą stronę też istnieje
             }
         }
         graphStream.close();
@@ -90,13 +90,15 @@ graph readGraph ( const std::string filename, setSt& list ) {
     return temp;
 }
 
-void prepareValues ( std::string &start, setSt &nL, mapStDb &d, mapStSt &p, vSt &r ) {
+void prepareValues ( std::string &start, setSt& nL, mapStDb &d, mapStSt &p, vSt &r ) {
 
-    for ( auto node = nL.begin(); node != nL.end(); ++node ) {
+    for ( auto node = nL.begin(); node != nL.end(); ++node) {
         p[*node] = ""; //poprzednik jako niezdefiniowany
-        r.push_back ( *node );
+        r.push_back ( *node);
         d[*node] = std::numeric_limits<double>::infinity(); //ustaw odległość na nieskończoność
+
     }
+
     d[start] = 0; // ustaw odległość początkowego na 0
 }
 
@@ -139,15 +141,15 @@ void writeResults ( mapStDb& d,  mapStSt& p,  std::string& n,  std::string& star
 
 }
 
-bool readParameters ( int& argc, char** argv, std::string& g, std::string& inp, std::string& out, bool &v ) {
+bool readParameters ( int& argc, char** argv, std::string& gName, std::string& wName, std::string& oName, bool &v ) {
     bool errors = false;
     for ( int i = 1; i < argc - 1; i++ ) {
         if ( not strcmp ( argv[i], "-g" ) ) { //plik z grafem
-            g = argv[i + 1];
+            gName = argv[i + 1];
         } else if ( not strcmp ( argv[i], "-w" ) ) { //plik z wierzchołkami
-            inp = argv[i + 1];
+            wName = argv[i + 1];
         } else if ( not strcmp ( argv[i], "-o" ) ) { //plik wyjściowy
-            out = argv[i + 1];
+            oName = argv[i + 1];
         } else if ( not strcmp ( argv[i], "-v" ) ) { //verbose, wypisuj dodatkowe informacje
             v = true;
         } else if ( not strcmp ( argv[i], "-h" ) ) { //pomoc
@@ -158,15 +160,15 @@ bool readParameters ( int& argc, char** argv, std::string& g, std::string& inp, 
     if ( not strcmp ( argv[argc - 1], "-h" ) ) { //pomoc
         errors = true;
     };
-    if ( inp == ""|| ( inp.size() ==2&&inp[0]=='-' ) ) {
+    if ( wName == ""|| ( wName.size() ==2&&wName[0]=='-' ) ) {
         std::cerr << "Nie podano pliku wejściowego!"<<std::endl;
         errors = true;
     }
-    if ( out == ""|| ( out.size() ==2&&out[0]=='-' ) ) {
+    if ( oName == ""|| ( oName.size() ==2&&oName[0]=='-' ) ) {
         std::cerr << "Nie podano pliku wyjściowego!"<<std::endl;
         errors = true;
     }
-    if ( g == ""|| ( g.size() ==2&&g[0]=='-' ) ) {
+    if ( gName == ""|| ( gName.size() ==2&&gName[0]=='-' ) ) {
         std::cerr << "Nie podano pliku z grafem!"<<std::endl;
         errors = true;
     }
