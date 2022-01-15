@@ -17,11 +17,15 @@ int main ( int argc, char **argv )
     bool verbose = false;
     if ( readParameters ( argc, argv, graphName, taskName, outputName, verbose ) ) {
         helpMessage();
-        return 0;
+        return 1;
     }
     //wczytywanie grafu
     setSt nodeList;
     graph nodes = readGraph ( graphName, nodeList );
+    if(nodes.empty()){
+        std::cerr << "Graf jest pusty." << std::endl;
+        return 1;
+    }
     //wczytywanie wierzchołków
     vSt toCheck = readTask ( taskName );
     if ( verbose ) printInput ( graphName, taskName, outputName, nodes, toCheck );
@@ -45,6 +49,7 @@ int main ( int argc, char **argv )
                 dijkstra ( remaining, checked, distance, previous, nodes );
                 //wypisanie wyników dla każdego wierzchołka w grafie
                 for ( auto node:checked ) {
+                    
                     writeResults ( distance, previous, node, startingNode, outputStream, verbose );
                 }
             }

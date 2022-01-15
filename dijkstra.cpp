@@ -1,4 +1,3 @@
-/** @file */
 #include "dijkstra.h"
 #include <string>
 #include <vector>
@@ -68,9 +67,17 @@ graph readGraph ( const std::string filename, setSt& list ) {
     if ( graphStream ) {
         std::string poczatek, polaczenie, koniec, dwukropek;
         double waga;
+        int lines = 1;
         while ( graphStream >> poczatek >> polaczenie >> koniec >> dwukropek >> waga ) {
+            if(dwukropek == ":") //prosta weryfikacja poprawności wprowadzonych danych
+                lines++;
+            else {
+                std::cerr << "Błąd wczytywania danych w połączeniu " << lines<<std::endl;
+                graph error;
+                return error;
+            }
             list.insert ( poczatek ); //dodajemy do zbioru wierzchołek początkowy i końcowy
-            list.insert ( koniec ); //ponieważ może być wierzchołek zdefiniwowany tylko jako końcowy
+            list.insert ( koniec ); //ponieważ może być wierzchołek zdefiniwowany tylko jako ywkońcowy
             temp[poczatek][koniec] = waga;
             if ( polaczenie == "-" ) { // jeżeli krawędź nieskierowana
                 temp[koniec][poczatek] = waga;//to połączenie w drugą stronę też istnieje
@@ -107,8 +114,9 @@ void dijkstra ( vSt &Q, setSt &S, mapStDb &d, mapStSt &p, graph &n ) {
                 if ( d[compNode.first]>d[closest] + compNode.second ) {
                     //sprawdzamy czy droga do niego przez ten wierzchołek jest krótsza niż do tej pory
                     d[compNode.first] = d[closest]+ compNode.second;//jeżeli tak to ustalamy odległość na drogę przez ten wierzchołek
+                    p[compNode.first] = closest; //i ustawiamy ten wierzchołek jako jego poprzednika
                 }
-                p[compNode.first] = closest; //i ustawiamy ten wierzchołek jako jego poprzednika
+                
             }
         }
     }
