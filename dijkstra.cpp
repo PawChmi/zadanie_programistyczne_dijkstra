@@ -78,7 +78,7 @@ graph readGraph ( const std::string filename, setSt& list ) {
                     temp[end][start] = weight;//to połączenie w drugą stronę też istnieje
                 }
             } else {
-                std::cout << "Błąd wczytywania danych w połączeniu " << lines<<std::endl;
+                std::cerr << "Błąd wczytywania danych w połączeniu " << lines<<std::endl;
                 graph error;
                 return error;
             }

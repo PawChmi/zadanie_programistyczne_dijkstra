@@ -49,7 +49,7 @@ void printInput(std::string& gName, std::string& wName, std::string& oName, grap
 std::string traceback(mapStSt& prev, std::string end, std::string start);
 
 /**
- * Funkcja zwraca wektor ciągów znaków, które określają dla jakich wierzchołków należy znaleźć najkrótsze ścieżki.
+ * Funkcja wczytuje z pliku o podanej nazwie, nazwy wierzchołków, dla których należy wyznaczyć najkrótsze ścieżki.
  * 
  * @param filename nazwa pliku wejściowego
  * @return wektor z nazwami wierzchołków, dla których należy znaleźć najkrótsze ścieżki
@@ -57,11 +57,11 @@ std::string traceback(mapStSt& prev, std::string end, std::string start);
 vSt readTask(const std::string filename);
 
 /**
- * Funkcja zwraca graph wczytany z pliku o nazwie filename.
- * Zwraca również listę wierzchołków w grafie.
+ * Funkcja wczytuje dane grafu z pliku o podanej nazwie.
+ * Funkcja zwraca listę wierzchołków w grafie do podanego zbioru ciągów znaków.
  * @param filename nazwa pliku wejściowego
  * @param[out] list zbiór String, do którego ma wpisać wierzchołki
- * @return mapa map odległośći między wierzchołkami (obiekt typu graph)
+ * @return mapa map odległości między wierzchołkami (obiekt typu graph)
  */
 graph readGraph(const std::string filename, setSt& list);
 
@@ -100,14 +100,14 @@ void writeResults(mapStDb& dist, mapStSt& prev, std::string& node, std::string& 
 
 
 /**
- * Funkcja wczytuje parametry wejściowe podane do programu
+ * Funkcja wczytuje parametry wejściowe podane do programu.
  *
  * @param argc ilość podanych agrumentów
  * @param argv tablica podanych argumentów
  * @param[out] gName  nazwa pliku z grafem
  * @param[out] wName  nazwa pliku z wierzchołkami
  * @param[out] oName  nazwa pliku wyjściowego
- * @param[out] verb boolean czy funkcja ma wypisywać dodatkowe dane w konsoli
+ * @param[out] verb zmienna określająca, czy funkcja ma wypisywać dodatkowe dane w konsoli
  * @return funkcja zwraca wartość false jeżeli podane zostały wszystkie parametry lub true jeżeli jakiegoś brakuje
  */
 bool readParameters(int& argc, char** argv, std::string& gName, std::string& wName, std::string& oName, bool& verb);
