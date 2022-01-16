@@ -22,8 +22,8 @@ int main ( int argc, char **argv )
     //wczytywanie grafu
     setSt nodeList;
     graph nodes = readGraph ( graphName, nodeList );
-    if(nodes.empty()){
-        std::cerr << "Graf jest pusty." << std::endl;
+    if(nodes.empty()) {
+        std::cerr << "Graf jest pusty, lub w pliku są niewłaściwe dane." << std::endl;
         return 1;
     }
     //wczytywanie wierzchołków
@@ -34,29 +34,28 @@ int main ( int argc, char **argv )
         for ( auto startingNode : toCheck ) {//dla każdego z zadanych wierzchołków
             if ( verbose ) std::cout << "Wierzchołek startowy: "<< startingNode <<std::endl;
             outputStream << "Wierzchołek startowy: "<< startingNode <<std::endl;
-            if ( nodes.find ( startingNode ) ==nodes.end() ) { //sprawdzamy czy taki wierzchołek w ogóle istnieje
-                if ( verbose ) std::cout << "Brak wierzchołka "<< startingNode <<" w grafie"<<std::endl;
-                outputStream << "Brak wierzchołka "<< startingNode <<" w grafie"<<std::endl;
-            } else {
+            if ( nodeList.count( startingNode ) ) { //sprawdzamy czy taki wierzchołek w ogóle istnieje
                 mapStSt previous;       //mapa poprzedników
                 mapStDb distance;      //mapa odległości
                 setSt checked = {};   // zbiór odwiedzonych wierzchołków
                 vSt remaining = {};  // wektor wierzchołków nieodwiedzonych
                 //wektor zastosowany z uwagi na łatwiejsze sortowanie
                 //przygotowanie map odległości i poprzedników
-                prepareValues ( startingNode, nodeList ,distance, previous,  remaining );
-                //wyszukanie najkrótszych ścieżek
-                dijkstra ( remaining, checked, distance, previous, nodes );
-                //wypisanie wyników dla każdego wierzchołka w grafie
-                for ( auto node:checked ) {
-                    
+                prepareValues ( startingNode, nodeList,distance, previous,  remaining );
+                //wyszukanie najkrótszych ścieżek, z wykorzystaniem algorytmu Dijkstry
+                applyDijkstra ( remaining, checked, distance, previous, nodes );
+
+                for ( auto node:checked ) { //wypisanie wyników dla każdego wierzchołka w grafie
                     writeResults ( distance, previous, node, startingNode, outputStream, verbose );
                 }
+            } else {
+                if ( verbose ) std::cout << "Brak wierzchołka "<< startingNode <<" w grafie"<<std::endl;
+                outputStream << "Brak wierzchołka "<< startingNode <<" w grafie"<<std::endl;
             }
         }
         outputStream.close();
     } else {
-        std::cerr << "Błąd w otwieraniu pliku wyjściowego"<<std::endl;
+        std::cerr << "Błąd w otwieraniu pliku " << outputName <<std::endl;
         return 1;
     }
     return 0; //program wykonał się poprawnie

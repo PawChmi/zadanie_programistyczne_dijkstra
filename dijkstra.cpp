@@ -16,30 +16,30 @@ void helpMessage() {
     std::cout << "-h wypisuje tą wiadomość pomocy."<<std::endl;
 }
 
-void printInput ( std::string &g, std::string &i, std::string &o, graph &n, vSt &tC ) {
-    std::cout << "graf: " << g << std::endl;
-    std::cout << "wierzchołki: " << i << std::endl;
-    std::cout << "plik wyjsciowy: " << o << std::endl;
+void printInput ( std::string &gName, std::string &wName, std::string &oName, graph &connections, vSt &tasks ) {
+    std::cout << "graf: " << gName << std::endl;
+    std::cout << "wierzchołki: " << wName << std::endl;
+    std::cout << "plik wyjsciowy: " << oName << std::endl;
     std::cout << "Dane wprowadzone do programu:"<<std::endl;
-    for ( const auto& node : n ) {
+    for ( const auto& node : connections ) {
         std::cout <<"nazwa "<< node.first << ":" <<std::endl;
         for ( const auto&  neighbour : node.second ) {
             std::cout << "\t-> " << neighbour.first << ": " << neighbour.second << std::endl;
         }
     }
     std::cout <<"wierzchołki do sprawdzenia:"<<std::endl;
-    for ( auto x : tC ) {
+    for ( auto x : tasks ) {
         std::cout << x<< " ";
     }
     std::cout << std::endl<< "----------"<<std::endl;
 
 }
 
-std::string traceback ( mapStSt& m, std::string end, std::string start ) {
+std::string traceback ( mapStSt& prev, std::string end, std::string start ) {
     if ( start == end )
         return start;
     else
-        return traceback ( m, m[end], start ) +" -> "+ end;
+        return traceback ( prev, prev[end], start ) +" -> "+ end;
 
 }
 
@@ -54,7 +54,7 @@ vSt readTask ( const std::string filename ) {
         inputStream.close();
         return out;
     } else {
-        std::cerr << "Błąd w otwieraniu pliku z wierzchołkami"<<std::endl;
+        std::cerr << "Błąd w otwieraniu pliku "<< filename <<std::endl;
         return out;
     }
 
@@ -69,56 +69,57 @@ graph readGraph ( const std::string filename, setSt& list ) {
         double weight;
         int lines = 1;
         while ( graphStream >> start >> connection >> end >> separator >> weight ) {
-            if(separator == ":") //prosta weryfikacja poprawności wprowadzonych danych
+            if(separator == ":") { //prosta weryfikacja poprawności wprowadzonych danych
                 lines++;
-            else {
-                std::cerr << "Błąd wczytywania danych w połączeniu " << lines<<std::endl;
+                list.insert ( start ); //dodajemy do zbioru wierzchołek początkowy i końcowy
+                list.insert ( end ); //ponieważ może być wierzchołek zdefiniwowany tylko jako ywkońcowy
+                temp[start][end] = weight;
+                if ( connection == "-" ) { // jeżeli krawędź nieskierowana
+                    temp[end][start] = weight;//to połączenie w drugą stronę też istnieje
+                }
+            } else {
+                std::cout << "Błąd wczytywania danych w połączeniu " << lines<<std::endl;
                 graph error;
                 return error;
             }
-            list.insert ( start ); //dodajemy do zbioru wierzchołek początkowy i końcowy
-            list.insert ( end ); //ponieważ może być wierzchołek zdefiniwowany tylko jako ywkońcowy
-            temp[start][end] = weight;
-            if ( connection == "-" ) { // jeżeli krawędź nieskierowana
-                temp[end][start] = weight;//to połączenie w drugą stronę też istnieje
-            }
+
         }
         graphStream.close();
     } else {
-        std::cerr << "Błąd w otwieraniu pliku z grafem" << std::endl;
+        std::cerr << "Błąd w otwieraniu pliku "<<filename << std::endl;
     }
     return temp;
 }
 
-void prepareValues ( std::string &start, setSt& nL, mapStDb &d, mapStSt &p, vSt &r ) {
+void prepareValues ( std::string &start, setSt& nList, mapStDb &dist, mapStSt &prev, vSt &remain ) {
 
-    for ( auto node = nL.begin(); node != nL.end(); ++node) {
-        p[*node] = ""; //poprzednik jako niezdefiniowany
-        r.push_back ( *node);
-        d[*node] = std::numeric_limits<double>::infinity(); //ustaw odległość na nieskończoność
+    for ( auto node = nList.begin(); node != nList.end(); ++node) {
+        prev[*node] = ""; //poprzednik jako niezdefiniowany
+        remain.push_back ( *node);
+        dist[*node] = std::numeric_limits<double>::infinity(); //ustaw odległość na nieskończoność
 
     }
 
-    d[start] = 0; // ustaw odległość początkowego na 0
+    dist[start] = 0; // ustaw odległość początkowego na 0
 }
 
-void dijkstra ( vSt &Q, setSt &S, mapStDb &d, mapStSt &p, graph &n ) {
-    while ( Q.size() ) { //dopóki nie wszystkie wierzchołki odwiedzone
-        //sortowanie wektora Q według odległości
-        std::sort ( Q.begin(), Q.end(), [&d] ( std::string el1, std::string el2 ) {
-            return ( d[el1]>d[el2] );
+void applyDijkstra ( vSt &remain, setSt &checked, mapStDb &dist, mapStSt &prev, graph &connections ) {
+    while ( remain.size() ) { //dopóki nie wszystkie wierzchołki odwiedzone
+        //sortowanie wektora remain według odległości
+        std::sort ( remain.begin(), remain.end(), [&dist] ( std::string el1, std::string el2 ) {
+            return ( dist[el1]>dist[el2] );
         } );
-        std::string closest = Q.back();//wybieramy wierzchołek o najmniejszej odległości
-        Q.pop_back();
-        S.insert ( closest ); //przenosimy go do listy sprawdzonych
-        for ( auto compNode : n[closest] ) { //dla każdego z sąsiadujących wierzchołków
-            if ( std::find ( Q.begin(), Q.end(), compNode.first ) !=Q.end() ) { //jeśli nie był jeszcze odwiedzony
-                if ( d[compNode.first]>d[closest] + compNode.second ) {
+        std::string closest = remain.back();//wybieramy wierzchołek o najmniejszej odległości
+        remain.pop_back();
+        checked.insert ( closest ); //przenosimy go do listy sprawdzonych
+        for ( auto compNode : connections[closest] ) { //dla każdego z sąsiadujących wierzchołków
+            if ( std::find ( remain.begin(), remain.end(), compNode.first ) !=remain.end() ) { //jeśli nie był jeszcze odwiedzony
+                if ( dist[compNode.first]>dist[closest] + compNode.second ) {
                     //sprawdzamy czy droga do niego przez ten wierzchołek jest krótsza niż do tej pory
-                    d[compNode.first] = d[closest]+ compNode.second;//jeżeli tak to ustalamy odległość na drogę przez ten wierzchołek
-                    p[compNode.first] = closest; //i ustawiamy ten wierzchołek jako jego poprzednika
+                    dist[compNode.first] = dist[closest]+ compNode.second;//jeżeli tak to ustalamy odległość na drogę przez ten wierzchołek
+                    prev[compNode.first] = closest; //i ustawiamy ten wierzchołek jako jego poprzednika
                 }
-                
+
             }
         }
     }
@@ -126,22 +127,22 @@ void dijkstra ( vSt &Q, setSt &S, mapStDb &d, mapStSt &p, graph &n ) {
 }
 
 
-void writeResults ( mapStDb& d,  mapStSt& p,  std::string& n,  std::string& startN, std::ofstream &S, bool V ) {
-    if ( n!=startN ) {
-        if ( d[n] == std::numeric_limits<double>::infinity() ) { //zabezpieczenie przed wierzchołkami izolowanymi
-            if ( V ) std::cout << "Brak drogi do wierzchołka " << n << std::endl;
-            S << "Brak drogi do wierzchołka " << n << std::endl;
+void writeResults ( mapStDb& dist,  mapStSt& prev,  std::string& node,  std::string& startNode, std::ofstream &outStream, bool verb ) {
+    if ( node!=startNode ) {
+        if ( dist[node] == std::numeric_limits<double>::infinity() ) { //zabezpieczenie przed wierzchołkami izolowanymi
+            if ( verb ) std::cout << "Brak drogi do wierzchołka " << node << std::endl;
+            outStream << "Brak drogi do wierzchołka " << node << std::endl;
         } else {
-            if ( V ) std::cout << traceback ( p, n, startN );
-            S << traceback ( p, n, startN );
-            if ( V ) std::cout << " : " << d[n] << std::endl;
-            S << " : " << d[n] << std::endl;
+            if ( verb ) std::cout << traceback ( prev, node, startNode );
+            outStream << traceback ( prev, node, startNode );
+            if ( verb ) std::cout << " : " << dist[node] << std::endl;
+            outStream << " : " << dist[node] << std::endl;
         }
     }
 
 }
 
-bool readParameters ( int& argc, char** argv, std::string& gName, std::string& wName, std::string& oName, bool &v ) {
+bool readParameters ( int& argc, char** argv, std::string& gName, std::string& wName, std::string& oName, bool &verb ) {
     bool errors = false;
     for ( int i = 1; i < argc - 1; i++ ) {
         if ( not strcmp ( argv[i], "-g" ) ) { //plik z grafem
@@ -151,12 +152,12 @@ bool readParameters ( int& argc, char** argv, std::string& gName, std::string& w
         } else if ( not strcmp ( argv[i], "-o" ) ) { //plik wyjściowy
             oName = argv[i + 1];
         } else if ( not strcmp ( argv[i], "-v" ) ) { //verbose, wypisuj dodatkowe informacje
-            v = true;
+            verb = true;
         } else if ( not strcmp ( argv[i], "-h" ) ) { //pomoc
             errors = true;
         }
     }
-    if ( not strcmp ( argv[argc - 1], "-v" ) ) v = true; //verbose, wypisuj dodatkowe informacje
+    if ( not strcmp ( argv[argc - 1], "-v" ) ) verb = true; //verbose, wypisuj dodatkowe informacje
     if ( not strcmp ( argv[argc - 1], "-h" ) ) { //pomoc
         errors = true;
     };
